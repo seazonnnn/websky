@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - SkyBattle</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <div class="admin-container">
+    <aside class="admin-sidebar">
+      <div class="admin-logo">
+        <img src="/images/logo.png" alt="SkyBattle">
+        <span>Admin Panel</span>
+      </div>
+      <nav class="admin-nav">
+        <a href="#" class="nav-item active" data-tab="products">Products</a>
+        <a href="#" class="nav-item" data-tab="categories">Categories</a>
+        <a href="#" class="nav-item" data-tab="promo-codes">Promo Codes</a>
+        <a href="#" class="nav-item" data-tab="users">Users</a>
+        <a href="#" class="nav-item" data-tab="orders">Orders</a>
+        <a href="#" class="nav-item" data-tab="staff-apps">Staff Applications</a>
+        <a href="#" class="nav-item" data-tab="homepage">Home Page</a>
+        <a href="#" class="nav-item" data-tab="settings">Settings</a>
+      </nav>
+      <a href="/admin/logout" class="logout-link">Logout</a>
+    </aside>
+
+    <main class="admin-main">
+      <!-- Products Tab -->
+      <div class="tab-content active" id="products-tab">
+        <div class="tab-header">
+          <h1>Products</h1>
+          <div class="tab-actions">
+            <button class="btn btn-secondary" onclick="applySale()">Apply Sale %</button>
+            <button class="btn btn-secondary" onclick="removeSales()">Remove All Sales</button>
+            <button class="btn btn-primary" onclick="showProductModal()">+ Add Product</button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Original</th>
+                <th>On Sale</th>
+                <th>Command</th>
+                <th>Active</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="productsTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Categories Tab -->
+      <div class="tab-content" id="categories-tab">
+        <div class="tab-header">
+          <h1>Categories</h1>
+          <button class="btn btn-primary" onclick="showCategoryModal()">+ Add Category</button>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Slug</th>
+                <th>Order</th>
+                <th>Active</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="categoriesTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Promo Codes Tab -->
+      <div class="tab-content" id="promo-codes-tab">
+        <div class="tab-header">
+          <h1>Promo Codes</h1>
+          <button class="btn btn-primary" onclick="showPromoModal()">+ Add Promo Code</button>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Code</th>
+                <th>Discount %</th>
+                <th>Max Uses</th>
+                <th>Used</th>
+                <th>Expires</th>
+                <th>Active</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="promoCodesTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Users Tab -->
+      <div class="tab-content" id="users-tab">
+        <div class="tab-header">
+          <h1>Users</h1>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Type</th>
+                <th>Balance</th>
+                <th>Total Spent</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Orders Tab -->
+      <div class="tab-content" id="orders-tab">
+        <div class="tab-header">
+          <h1>Orders</h1>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Type</th>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Total</th>
+                <th>Command</th>
+                <th>Executed</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Staff Applications Tab -->
+      <div class="tab-content" id="staff-apps-tab">
+        <div class="tab-header">
+          <h1>Staff Applications</h1>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>IGN</th>
+                <th>Age</th>
+                <th>Discord</th>
+                <th>Rank</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Notes</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="staffAppsTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Home Page Tab -->
+      <div class="tab-content" id="homepage-tab">
+        <div class="tab-header">
+          <h1>Home Page Settings</h1>
+          <a href="/home" target="_blank" class="btn btn-secondary">Preview Home Page</a>
+        </div>
+        <div class="settings-grid">
+          <div class="settings-form">
+            <h3>Server Branding</h3>
+            <div class="form-group">
+              <label>Server Name</label>
+              <input type="text" id="setting_server_name" placeholder="SkyBattle">
+            </div>
+            <div class="form-group">
+              <label>Tagline</label>
+              <input type="text" id="setting_server_tagline" placeholder="NETWORK">
+            </div>
+          </div>
+          
+          <div class="settings-form">
+            <h3>Hero Section</h3>
+            <div class="form-group">
+              <label>Badge Text</label>
+              <input type="text" id="setting_hero_badge" placeholder="SEASON 1 LIVE">
+            </div>
+            <div class="form-group">
+              <label>Title Line 1</label>
+              <input type="text" id="setting_hero_title" placeholder="WELCOME TO">
+            </div>
+            <div class="form-group">
+              <label>Title Line 2 (Colored)</label>
+              <input type="text" id="setting_hero_subtitle" placeholder="SKYBATTLE">
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea id="setting_hero_description" rows="2" placeholder="The ultimate competitive PvP network..."></textarea>
+            </div>
+          </div>
+          
+          <div class="settings-form">
+            <h3>Owner Section</h3>
+            <div class="form-group">
+              <label>Owner Minecraft Username</label>
+              <input type="text" id="setting_owner_username" placeholder="Seazonn_">
+            </div>
+            <div class="form-group">
+              <label>Owner Quote</label>
+              <textarea id="setting_owner_quote" rows="2" placeholder="I created SkyBattle to bring..."></textarea>
+            </div>
+          </div>
+          
+          <div class="settings-form">
+            <h3>Community Links</h3>
+            <div class="form-group">
+              <label>Staff Apply Link</label>
+              <input type="text" id="setting_staff_apply_link" placeholder="https://...">
+            </div>
+            <div class="form-group">
+              <label>Media Rank Link</label>
+              <input type="text" id="setting_media_rank_link" placeholder="https://...">
+            </div>
+          </div>
+        </div>
+        
+        <div class="settings-grid" style="margin-top: 20px;">
+          <div class="settings-form" style="grid-column: span 2;">
+            <h3>Gamemodes (JSON Array)</h3>
+            <div class="form-group">
+              <textarea id="setting_gamemodes" rows="3" placeholder='[{"name":"Economy","icon":"coins"},{"name":"SwordPvP","icon":"sword"}]'></textarea>
+              <small>Icons: coins, sword, gem, box, heart</small>
+            </div>
+          </div>
+          
+          <div class="settings-form" style="grid-column: span 2;">
+            <h3>Team Members (JSON Array)</h3>
+            <div class="form-group">
+              <textarea id="setting_team_members" rows="3" placeholder='[{"username":"Seazonn_","role":"OWNER"}]'></textarea>
+              <small>Roles: OWNER, CEO, MANAGER, ADMIN, SRADMIN, SRMOD, MOD, HELPER</small>
+            </div>
+          </div>
+        </div>
+        
+        <div class="settings-grid" style="margin-top: 20px;">
+          <div class="settings-form">
+            <h3>Client Rules (JSON Array)</h3>
+            <textarea id="setting_rules_client" rows="6" placeholder='["No Hack Clients","No Movement Mods"]'></textarea>
+          </div>
+          <div class="settings-form">
+            <h3>Server Rules (JSON Array)</h3>
+            <textarea id="setting_rules_server" rows="6" placeholder='["No Hacking","No Bug Exploits"]'></textarea>
+          </div>
+          <div class="settings-form">
+            <h3>Discord Rules (JSON Array)</h3>
+            <textarea id="setting_rules_discord" rows="6" placeholder='["Be Respectful","No Spam"]'></textarea>
+          </div>
+        </div>
+        
+        <button class="btn btn-primary" onclick="saveSettings()" style="margin-top: 20px;">Save Home Page Settings</button>
+      </div>
+
+      <!-- Settings Tab -->
+      <div class="tab-content" id="settings-tab">
+        <div class="tab-header"></div>
+          <h1>Settings</h1>
+        </div>
+        <div class="settings-grid">
+          <div class="settings-form">
+            <h3>Sale Settings</h3>
+            <div class="form-group">
+              <label>Sale Active</label>
+              <select id="setting_sale_active">
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Sale Banner Text</label>
+              <input type="text" id="setting_sale_text">
+            </div>
+            <div class="form-group">
+              <label>Sale Percentage</label>
+              <input type="number" id="setting_sale_percentage">
+            </div>
+          </div>
+          
+          <div class="settings-form">
+            <h3>Server Info</h3>
+            <div class="form-group">
+              <label>Server IP</label>
+              <input type="text" id="setting_server_ip">
+            </div>
+            <div class="form-group">
+              <label>Discord Invite Link</label>
+              <input type="text" id="setting_discord_link">
+            </div>
+          </div>
+          
+          <div class="settings-form">
+            <h3>Discord Webhook</h3>
+            <div class="form-group">
+              <label>Purchase Webhook URL</label>
+              <input type="text" id="setting_discord_webhook">
+              <small>For purchase notifications</small>
+            </div>
+            <div class="form-group">
+              <label>Staff Application Webhook URL</label>
+              <input type="text" id="setting_staff_webhook">
+              <small>For staff application notifications</small>
+            </div>
+          </div>
+          
+          <div class="settings-form">
+            <h3>Payment Goal</h3>
+            <div class="form-group">
+              <label>Goal Amount ($)</label>
+              <input type="number" id="setting_payment_goal">
+            </div>
+            <div class="form-group">
+              <label>Current Amount ($)</label>
+              <input type="number" id="setting_payment_goal_current">
+            </div>
+            <div class="form-group">
+              <label>Goal Text</label>
+              <input type="text" id="setting_payment_goal_text">
+            </div>
+            <button class="btn btn-secondary" onclick="resetPaymentGoal()">Reset Goal</button>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="saveSettings()" style="margin-top: 20px;">Save All Settings</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- Product Modal -->
+  <div class="modal" id="productModal">
+    <div class="modal-content modal-large">
+      <button class="modal-close" onclick="closeProductModal()">&times;</button>
+      <h2 id="productModalTitle">Add Product</h2>
+      <form onsubmit="saveProduct(event)">
+        <input type="hidden" id="productId">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="productName" required>
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="productCategory" required></select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description (HTML supported)</label>
+          <textarea id="productDescription" rows="4" placeholder="Enter product description. HTML tags like &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;img&gt; are supported."></textarea>
+          <small>Use HTML for formatting. Add images with: &lt;img src="URL" alt="description"&gt;</small>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Price (USD)</label>
+            <input type="number" step="0.01" id="productPrice" required>
+          </div>
+          <div class="form-group">
+            <label>Original Price</label>
+            <input type="number" step="0.01" id="productOriginalPrice">
+          </div>
+          <div class="form-group">
+            <label>On Sale</label>
+            <select id="productOnSale">
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Image URL</label>
+          <input type="text" id="productImage">
+        </div>
+        <div class="form-group">
+          <label>Minecraft Command</label>
+          <input type="text" id="productCommand" placeholder="/crate give {player} common {quantity}">
+          <small>Use {player} for username, {quantity} for amount</small>
+        </div>
+        <div class="form-group">
+          <label>Active</label>
+          <select id="productActive">
+            <option value="1">Yes</option>
+            <option value="0">No</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Product</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Category Modal -->
+  <div class="modal" id="categoryModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeCategoryModal()">&times;</button>
+      <h2 id="categoryModalTitle">Add Category</h2>
+      <form onsubmit="saveCategory(event)">
+        <input type="hidden" id="categoryId">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="categoryName" required>
+        </div>
+        <div class="form-group">
+          <label>Slug (URL-friendly)</label>
+          <input type="text" id="categorySlug" required>
+          <small>e.g., "keys", "crates", "ranks"</small>
+        </div>
+        <div class="form-group">
+          <label>Display Order</label>
+          <input type="number" id="categoryOrder" value="0">
+        </div>
+        <div class="form-group">
+          <label>Active</label>
+          <select id="categoryActive">
+            <option value="1">Yes</option>
+            <option value="0">No</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Category</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Promo Code Modal -->
+  <div class="modal" id="promoModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closePromoModal()">&times;</button>
+      <h2 id="promoModalTitle">Add Promo Code</h2>
+      <form onsubmit="savePromoCode(event)">
+        <input type="hidden" id="promoId">
+        <div class="form-group">
+          <label>Code</label>
+          <input type="text" id="promoCode" required placeholder="e.g., WINTER30">
+          <small>Will be converted to uppercase</small>
+        </div>
+        <div class="form-group">
+          <label>Discount Percentage</label>
+          <input type="number" id="promoDiscount" min="1" max="100" required placeholder="e.g., 30">
+        </div>
+        <div class="form-group">
+          <label>Max Uses (0 = unlimited)</label>
+          <input type="number" id="promoMaxUses" min="0" value="0">
+        </div>
+        <div class="form-group">
+          <label>Expires At (optional)</label>
+          <input type="datetime-local" id="promoExpires">
+        </div>
+        <div class="form-group">
+          <label>Active</label>
+          <select id="promoActive">
+            <option value="1">Yes</option>
+            <option value="0">No</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Promo Code</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Balance Modal -->
+  <div class="modal" id="balanceModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeBalanceModal()">&times;</button>
+      <h2>Add Balance</h2>
+      <form onsubmit="addBalance(event)">
+        <input type="hidden" id="balanceUserId">
+        <p id="balanceUserName" style="margin-bottom: 15px;"></p>
+        <div class="form-group">
+          <label>Amount to Add (USD)</label>
+          <input type="number" step="0.01" id="balanceAmount" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Balance</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Staff Application Modal -->
+  <div class="modal" id="staffAppModal">
+    <div class="modal-content modal-large">
+      <button class="modal-close" onclick="closeStaffAppModal()">&times;</button>
+      <h2>Staff Application Details</h2>
+      <input type="hidden" id="staffAppId">
+      <div class="staff-app-details">
+        <div class="form-row">
+          <div class="form-group">
+            <label>IGN</label>
+            <input type="text" id="staffAppIGN" readonly>
+          </div>
+          <div class="form-group">
+            <label>Age</label>
+            <input type="text" id="staffAppAge" readonly>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Discord</label>
+            <input type="text" id="staffAppDiscord" readonly>
+          </div>
+          <div class="form-group">
+            <label>Applying For</label>
+            <input type="text" id="staffAppRank" readonly>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Why should we pick you?</label>
+          <textarea id="staffAppReason" rows="4" readonly></textarea>
+        </div>
+        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+        <div class="form-group">
+          <label>Status</label>
+          <select id="staffAppStatus">
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+            <option value="interview">Interview</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Admin Notes</label>
+          <textarea id="staffAppNotes" rows="3" placeholder="Add notes about this application..."></textarea>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="saveStaffApp()">Save Changes</button>
+    </div>
+  </div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - SkyBattle Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="/images/logo.png">
+  <style>
+    body { background: var(--bg-dark); }
+    .checkout-container { display: flex; min-height: 100vh; }
+    .order-sidebar {
+      width: 320px;
+      background: var(--bg-card);
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+    }
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    .order-title { font-size: 16px; }
+    .cancel-btn {
+      color: var(--accent-gold);
+      text-decoration: underline;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: 14px;
+    }
+    .order-items { flex: 1; overflow-y: auto; }
+    .order-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .order-item-image {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      background: var(--bg-sidebar);
+      border-radius: 5px;
+      padding: 5px;
+    }
+    .order-item-info { flex: 1; }
+    .order-item-name { font-weight: bold; margin-bottom: 5px; }
+    .order-item-price { display: flex; gap: 8px; font-size: 14px; }
+    .order-item-original { color: var(--danger); text-decoration: line-through; }
+    .order-item-current { color: var(--text-white); }
+    .order-footer {
+      border-top: 1px solid #333;
+      padding-top: 20px;
+      margin-top: 20px;
+    }
+    .order-subtotal {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      color: var(--text-gray);
+    }
+    .order-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .order-total-amount { color: var(--accent-gold); }
+    
+    .checkout-main { flex: 1; padding: 40px; max-width: 700px; }
+    .checkout-steps {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 40px;
+      font-size: 14px;
+    }
+    .step { color: var(--text-gray); }
+    .step.active { color: var(--accent-gold); }
+    .step-separator { color: var(--text-gray); }
+    
+    .section-title { font-size: 18px; margin-bottom: 20px; }
+    .payment-methods {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    .payment-method {
+      background: var(--bg-card);
+      border: 2px solid #333;
+      border-radius: 8px;
+      padding: 15px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .payment-method:hover { border-color: #555; }
+    .payment-method.selected {
+      border-color: var(--accent-gold);
+      background: rgba(212, 168, 75, 0.1);
+    }
+    .payment-method.disabled { opacity: 0.5; cursor: not-allowed; }
+    .payment-method.disabled:hover { border-color: #333; }
+    .payment-icon {
+      height: 30px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .payment-icon img { max-height: 30px; max-width: 80px; }
+    .payment-label { font-size: 11px; color: var(--text-gray); }
+    .coming-soon-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: var(--danger);
+      color: white;
+      font-size: 9px;
+      padding: 3px 6px;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+    .balance-amount {
+      color: var(--accent-gold);
+      font-weight: bold;
+      font-size: 13px;
+      margin-top: 5px;
+    }
+    
+    .balance-info-box {
+      background: var(--bg-card);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .balance-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .balance-label { color: var(--text-gray); }
+    .balance-value { font-weight: bold; }
+    .balance-value.positive { color: var(--success); }
+    .balance-value.negative { color: var(--danger); }
+    .balance-value.gold { color: var(--accent-gold); }
+    
+    .promo-code-section {
+      background: var(--bg-card);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .promo-label {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--text-gray);
+      font-size: 14px;
+    }
+    .promo-input-group {
+      display: flex;
+      gap: 10px;
+    }
+    .promo-input-group input {
+      flex: 1;
+      background: var(--bg-sidebar);
+      border: 1px solid #333;
+      border-radius: 5px;
+      padding: 12px 15px;
+      color: var(--text-white);
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+    .promo-input-group input:focus {
+      outline: none;
+      border-color: var(--accent-gold);
+    }
+    .promo-apply-btn {
+      background: var(--accent-gold);
+      color: var(--bg-dark);
+      border: none;
+      padding: 12px 25px;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .promo-apply-btn:hover { background: var(--accent-orange); }
+    .promo-apply-btn:disabled { background: #555; cursor: not-allowed; }
+    .promo-message {
+      margin-top: 10px;
+      font-size: 13px;
+      min-height: 20px;
+    }
+    .promo-message.success { color: var(--success); }
+    .promo-message.error { color: var(--danger); }
+    .promo-applied {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(76, 175, 80, 0.1);
+      border: 1px solid var(--success);
+      border-radius: 5px;
+      padding: 10px 15px;
+      margin-top: 10px;
+    }
+    .promo-applied-info { display: flex; align-items: center; gap: 10px; }
+    .promo-applied-code { font-weight: bold; color: var(--success); }
+    .promo-applied-discount { color: var(--text-gray); font-size: 13px; }
+    .promo-remove-btn {
+      background: none;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 18px;
+      padding: 5px;
+    }
+    
+    .terms-section { margin: 30px 0; }
+    .terms-checkbox {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 15px;
+      cursor: pointer;
+    }
+    .terms-checkbox input {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--accent-gold);
+    }
+    .terms-checkbox label {
+      color: var(--text-gray);
+      font-size: 13px;
+      line-height: 1.5;
+      cursor: pointer;
+    }
+    .terms-checkbox a { color: var(--accent-gold); }
+    
+    .pay-btn {
+      width: 100%;
+      background: var(--accent-gold);
+      color: var(--bg-dark);
+      border: none;
+      padding: 18px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .pay-btn:hover { background: var(--accent-orange); }
+    .pay-btn:disabled { background: #555; cursor: not-allowed; }
+    .btn-spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(0,0,0,0.2);
+      border-top-color: var(--bg-dark);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .insufficient-msg {
+      background: rgba(255, 68, 68, 0.1);
+      border: 1px solid var(--danger);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .insufficient-msg h4 { color: var(--danger); margin-bottom: 10px; }
+    .insufficient-msg p { color: var(--text-gray); margin-bottom: 15px; }
+    .discord-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #5865F2;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .discord-link-btn:hover { background: #4752c4; }
+    
+    .checkout-footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #333;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      font-size: 12px;
+    }
+    .checkout-footer a { color: var(--text-gray); text-decoration: none; }
+    .checkout-footer a:hover { color: var(--text-white); }
+    
+    @media (max-width: 900px) {
+      .checkout-container { flex-direction: column; }
+      .order-sidebar { width: 100%; order: 2; }
+      .checkout-main { padding: 20px; }
+      .payment-methods { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="checkout-container">
+    <aside class="order-sidebar">
+      <div class="order-header">
+        <span class="order-title" id="orderTitle">Your order</span>
+        <button class="cancel-btn" onclick="cancelCheckout()">Cancel</button>
+      </div>
+      <div class="order-items" id="orderItems"></div>
+      <div class="order-footer">
+        <div class="order-subtotal">
+          <span>Subtotal:</span>
+          <span id="subtotal">$0.00 USD</span>
+        </div>
+        <div class="order-total">
+          <span>Total Price:</span>
+          <span class="order-total-amount" id="totalPrice">$0.00 USD</span>
+        </div>
+      </div>
+    </aside>
+    
+    <main class="checkout-main">
+      <div class="checkout-steps">
+        <span class="step">You might like</span>
+        <span class="step-separator">></span>
+        <span class="step active">Make Payment</span>
+        <span class="step-separator">></span>
+        <span class="step">Order Confirmed</span>
+      </div>
+      
+      <h2 class="section-title">Select Payment Method</h2>
+      
+      <div class="payment-methods">
+        <div class="payment-method selected" onclick="selectPayment('balance')" id="payment-balance">
+          <div class="payment-icon">
+            <img src="https://cdn-icons-png.flaticon.com/512/2489/2489756.png" alt="Wallet">
+          </div>
+          <div class="payment-label">Store Balance</div>
+          <div class="balance-amount" id="balanceDisplay">$0.00</div>
+        </div>
+        <div class="payment-method disabled" onclick="showComingSoon()">
+          <span class="coming-soon-badge">SOON</span>
+          <div class="payment-icon">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" alt="Card">
+          </div>
+          <div class="payment-label">Credit Card</div>
+        </div>
+        <div class="payment-method disabled" onclick="showComingSoon()">
+          <span class="coming-soon-badge">SOON</span>
+          <div class="payment-icon">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/200px-PayPal.svg.png" alt="PayPal">
+          </div>
+          <div class="payment-label">PayPal</div>
+        </div>
+        <div class="payment-method disabled" onclick="showComingSoon()">
+          <span class="coming-soon-badge">SOON</span>
+          <div class="payment-icon">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/100px-Bitcoin.svg.png" alt="Crypto">
+          </div>
+          <div class="payment-label">Crypto</div>
+        </div>
+      </div>
+      
+      <div class="balance-info-box" id="balanceInfoBox">
+        <div class="balance-row">
+          <span class="balance-label">Your Balance:</span>
+          <span class="balance-value gold" id="yourBalance">$0.00</span>
+        </div>
+        <div class="balance-row">
+          <span class="balance-label">Order Total:</span>
+          <span class="balance-value" id="orderTotal">$0.00</span>
+        </div>
+        <div class="balance-row" id="promoDiscountRow" style="display: none;">
+          <span class="balance-label">Promo Discount:</span>
+          <span class="balance-value" style="color: var(--success);" id="promoDiscountAmount">-$0.00</span>
+        </div>
+        <div class="balance-row" id="promoFinalRow" style="display: none;">
+          <span class="balance-label">Final Total:</span>
+          <span class="balance-value gold" id="promoFinalTotal">$0.00</span>
+        </div>
+        <div class="balance-row">
+          <span class="balance-label">Remaining After Purchase:</span>
+          <span class="balance-value" id="remainingBalance">$0.00</span>
+        </div>
+      </div>
+      
+      <div class="promo-code-section">
+        <label class="promo-label">Have a promo code?</label>
+        <div class="promo-input-group">
+          <input type="text" id="promoCodeInput" placeholder="Enter code" maxlength="20">
+          <button type="button" class="promo-apply-btn" id="promoApplyBtn" onclick="applyPromoCode()">Apply</button>
+        </div>
+        <div class="promo-message" id="promoMessage"></div>
+      </div>
+      
+      <div class="insufficient-msg" id="insufficientMsg">
+        <h4>Insufficient Balance</h4>
+        <p>You need to add funds to complete this purchase. Create a ticket in our Discord server to add balance to your account.</p>
+        <a href="https://discord.gg/3BhxMG4P4n" target="_blank" class="discord-link-btn" id="discordAddFunds">
+          Join Discord to Add Funds
+        </a>
+      </div>
+      
+      <div class="terms-section">
+        <div class="terms-checkbox">
+          <input type="checkbox" id="termsAgree">
+          <label for="termsAgree">I agree to the <a href="#">Terms & Conditions</a> and <a href="#">Privacy Policy</a>. I understand that all purchases are final and non-refundable.</label>
+        </div>
+      </div>
+      
+      <button class="pay-btn" id="payBtn" onclick="processPayment()" disabled>
+        Pay $0.00 USD with Store Balance
+      </button>
+      
+      <div class="checkout-footer">
+        <a href="#">Refund Policy</a>
+        <a href="#">Terms & Conditions</a>
+        <a href="#">Privacy Policy</a>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let cartData = { items: [], total: 0 };
+    let userData = null;
+    let appliedPromo = null;
+    let finalTotal = 0;
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadUserData();
+      await loadCartData();
+      await loadSettings();
+      setupTermsCheckbox();
+      updateUI();
+    });
+    
+    async function loadUserData() {
+      try {
+        const res = await fetch('/auth/me');
+        const data = await res.json();
+        if (data.user) userData = data.user;
+        else window.location.href = '/auth/login';
+      } catch (e) { window.location.href = '/auth/login'; }
+    }
+    
+    async function loadCartData() {
+      try {
+        const res = await fetch('/shop/cart');
+        const data = await res.json();
+        cartData = data;
+        finalTotal = cartData.total;
+        if (!cartData.items || cartData.items.length === 0) window.location.href = '/';
+      } catch (e) { window.location.href = '/'; }
+    }
+    
+    async function loadSettings() {
+      try {
+        const res = await fetch('/shop/settings');
+        const data = await res.json();
+        if (data.settings.discord_link) {
+          document.getElementById('discordAddFunds').href = data.settings.discord_link;
+        }
+      } catch (e) {}
+    }
+    
+    function updateUI() {
+      document.getElementById('orderTitle').textContent = `${userData.username}'s order`;
+      
+      const itemsHtml = cartData.items.map(item => `
+        <div class="order-item">
+          <img src="${item.image_url || '/images/placeholder.svg'}" alt="${item.name}" class="order-item-image">
+          <div class="order-item-info">
+            <div class="order-item-name">${item.name}</div>
+            <div class="order-item-price">
+              ${item.on_sale && item.original_price ? `<span class="order-item-original">${item.original_price.toFixed(2)} USD</span>` : ''}
+              <span class="order-item-current">${item.price.toFixed(2)} USD</span>
+              ${item.quantity > 1 ? `<span>x${item.quantity}</span>` : ''}
+            </div>
+          </div>
+        </div>
+      `).join('');
+      document.getElementById('orderItems').innerHTML = itemsHtml;
+      
+      document.getElementById('subtotal').textContent = `$${cartData.total.toFixed(2)} USD`;
+      document.getElementById('orderTotal').textContent = `$${cartData.total.toFixed(2)}`;
+      
+      document.getElementById('balanceDisplay').textContent = `$${userData.balance.toFixed(2)}`;
+      document.getElementById('yourBalance').textContent = `$${userData.balance.toFixed(2)}`;
+      
+      updateTotals();
+    }
+    
+    function updateTotals() {
+      const subtotal = cartData.total;
+      let discount = 0;
+      
+      if (appliedPromo) {
+        discount = subtotal * (appliedPromo.discount / 100);
+        finalTotal = subtotal - discount;
+        
+        document.getElementById('promoDiscountRow').style.display = 'flex';
+        document.getElementById('promoFinalRow').style.display = 'flex';
+        document.getElementById('promoDiscountAmount').textContent = `-$${discount.toFixed(2)}`;
+        document.getElementById('promoFinalTotal').textContent = `$${finalTotal.toFixed(2)}`;
+        document.getElementById('totalPrice').textContent = `$${finalTotal.toFixed(2)} USD`;
+      } else {
+        finalTotal = subtotal;
+        document.getElementById('promoDiscountRow').style.display = 'none';
+        document.getElementById('promoFinalRow').style.display = 'none';
+        document.getElementById('totalPrice').textContent = `$${subtotal.toFixed(2)} USD`;
+      }
+      
+      const remaining = userData.balance - finalTotal;
+      const remainingEl = document.getElementById('remainingBalance');
+      remainingEl.textContent = `$${remaining.toFixed(2)}`;
+      remainingEl.className = 'balance-value ' + (remaining >= 0 ? 'positive' : 'negative');
+      
+      const insufficientMsg = document.getElementById('insufficientMsg');
+      const payBtn = document.getElementById('payBtn');
+      const termsChecked = document.getElementById('termsAgree').checked;
+      
+      if (userData.balance < finalTotal) {
+        insufficientMsg.style.display = 'block';
+        payBtn.disabled = true;
+        payBtn.textContent = 'Insufficient Balance';
+      } else {
+        insufficientMsg.style.display = 'none';
+        payBtn.disabled = !termsChecked;
+        payBtn.textContent = `Pay $${finalTotal.toFixed(2)} USD with Store Balance`;
+      }
+    }
+    
+    async function applyPromoCode() {
+      const input = document.getElementById('promoCodeInput');
+      const code = input.value.trim().toUpperCase();
+      const message = document.getElementById('promoMessage');
+      const applyBtn = document.getElementById('promoApplyBtn');
+      
+      if (!code) {
+        message.textContent = 'Please enter a promo code';
+        message.className = 'promo-message error';
+        return;
+      }
+      
+      applyBtn.disabled = true;
+      applyBtn.textContent = '...';
+      
+      try {
+        const res = await fetch('/shop/promo/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          appliedPromo = { code: data.code, discount: data.discount };
+          message.innerHTML = '';
+          
+          const promoSection = document.querySelector('.promo-code-section');
+          const existingApplied = promoSection.querySelector('.promo-applied');
+          if (existingApplied) existingApplied.remove();
+          
+          const appliedDiv = document.createElement('div');
+          appliedDiv.className = 'promo-applied';
+          appliedDiv.innerHTML = `
+            <div class="promo-applied-info">
+              <span class="promo-applied-code">${data.code}</span>
+              <span class="promo-applied-discount">${data.discount}% off</span>
+            </div>
+            <button class="promo-remove-btn" onclick="removePromoCode()">&times;</button>
+          `;
+          promoSection.appendChild(appliedDiv);
+          
+          input.disabled = true;
+          applyBtn.style.display = 'none';
+          
+          updateTotals();
+        } else {
+          message.textContent = data.error || 'Invalid promo code';
+          message.className = 'promo-message error';
+        }
+      } catch (e) {
+        message.textContent = 'Failed to validate code';
+        message.className = 'promo-message error';
+      }
+      
+      applyBtn.disabled = false;
+      applyBtn.textContent = 'Apply';
+    }
+    
+    function removePromoCode() {
+      appliedPromo = null;
+      const promoSection = document.querySelector('.promo-code-section');
+      const appliedDiv = promoSection.querySelector('.promo-applied');
+      if (appliedDiv) appliedDiv.remove();
+      
+      document.getElementById('promoCodeInput').disabled = false;
+      document.getElementById('promoCodeInput').value = '';
+      document.getElementById('promoApplyBtn').style.display = 'block';
+      document.getElementById('promoMessage').textContent = '';
+      
+      updateTotals();
+    }
+    
+    function selectPayment(method) {
+      if (method !== 'balance') return;
+      document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
+      document.getElementById('payment-balance').classList.add('selected');
+    }
+    
+    function showComingSoon() {
+      alert('This payment method is coming soon! For now, please use Store Balance. Create a ticket in Discord to add funds.');
+    }
+    
+    function setupTermsCheckbox() {
+      const checkbox = document.getElementById('termsAgree');
+      checkbox.addEventListener('change', () => updateTotals());
+    }
+    
+    async function processPayment() {
+      const payBtn = document.getElementById('payBtn');
+      payBtn.disabled = true;
+      payBtn.innerHTML = '<span class="btn-spinner"></span> Processing...';
+      
+      try {
+        const res = await fetch('/shop/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ promoCode: appliedPromo?.code || null })
+        });
+        const data = await res.json();
+        if (data.success) window.location.href = '/order-complete.html';
+        else {
+          alert(data.error || 'Payment failed');
+          payBtn.disabled = false;
+          payBtn.textContent = `Pay $${finalTotal.toFixed(2)} USD with Store Balance`;
+        }
+      } catch (e) {
+        alert('Payment failed. Please try again.');
+        payBtn.disabled = false;
+        payBtn.textContent = `Pay $${finalTotal.toFixed(2)} USD with Store Balance`;
+      }
+    }
+    
+    function cancelCheckout() { window.location.href = '/'; }
+  </script>
+</body>
+</html>

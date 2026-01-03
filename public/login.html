@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - SkyBattle Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="/images/logo.png">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .auth-box {
+      background: var(--bg-card);
+      padding: 40px;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 400px;
+    }
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .auth-logo img {
+      height: 80px;
+    }
+    .auth-box h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text-gray);
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px 15px;
+      background: var(--bg-sidebar);
+      border: 1px solid #333;
+      border-radius: 5px;
+      color: var(--text-white);
+      font-size: 16px;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--accent-gold);
+    }
+    .password-wrapper {
+      position: relative;
+    }
+    .password-wrapper input {
+      padding-right: 45px;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-gray);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 5px;
+    }
+    .toggle-password:hover {
+      color: var(--accent-gold);
+    }
+    .remember-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .remember-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-gold);
+      cursor: pointer;
+    }
+    .remember-row label {
+      color: var(--text-gray);
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .submit-btn {
+      width: 100%;
+      background: var(--accent-gold);
+      color: var(--bg-dark);
+      border: none;
+      padding: 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    .submit-btn:hover {
+      background: var(--accent-orange);
+    }
+    .auth-link {
+      text-align: center;
+      margin-top: 20px;
+      color: var(--text-gray);
+    }
+    .auth-link a {
+      color: var(--accent-gold);
+    }
+    .error-msg {
+      background: rgba(255, 68, 68, 0.1);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      padding: 12px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: var(--text-gray);
+      text-decoration: none;
+    }
+    .back-link:hover {
+      color: var(--text-white);
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-box">
+    <div class="auth-logo">
+      <img src="/images/logo.png" alt="SkyBattle">
+    </div>
+    <h1>Login</h1>
+    <div class="error-msg" id="error"></div>
+    <form onsubmit="login(event)">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="email" required placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="password-wrapper">
+          <input type="password" id="password" required placeholder="Enter password">
+          <button type="button" class="toggle-password" onclick="togglePassword('password', this)">Show</button>
+        </div>
+      </div>
+      <div class="remember-row">
+        <input type="checkbox" id="rememberMe">
+        <label for="rememberMe">Remember me for 30 days</label>
+      </div>
+      <button type="submit" class="submit-btn">Login</button>
+    </form>
+    <p class="auth-link">Don't have an account? <a href="/auth/register">Register</a></p>
+    <a href="/" class="back-link">Back to Store</a>
+  </div>
+
+  <script>
+    function togglePassword(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = 'Hide';
+      } else {
+        input.type = 'password';
+        btn.textContent = 'Show';
+      }
+    }
+    
+    async function login(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const rememberMe = document.getElementById('rememberMe').checked;
+      const errorEl = document.getElementById('error');
+      
+      try {
+        const res = await fetch('/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, rememberMe })
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+          window.location.href = '/';
+        } else {
+          errorEl.textContent = data.error || 'Login failed';
+          errorEl.style.display = 'block';
+        }
+      } catch (e) {
+        errorEl.textContent = 'Login failed. Please try again.';
+        errorEl.style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>
